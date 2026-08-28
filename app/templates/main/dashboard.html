@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block titulo %}Panel — Gestor de Inventario{% endblock %}
+
+{% block contenido %}
+<h1 class="h3 mb-4">Panel de control</h1>
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3">
+    <div class="card text-bg-primary h-100"><div class="card-body">
+      <div class="display-6">{{ resumen.productos }}</div><div>Productos</div>
+    </div></div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card text-bg-success h-100"><div class="card-body">
+      <div class="display-6">{{ resumen.proveedores }}</div><div>Proveedores</div>
+    </div></div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card text-bg-info h-100"><div class="card-body">
+      <div class="display-6">{{ resumen.categorias }}</div><div>Categorías</div>
+    </div></div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card text-bg-warning h-100"><div class="card-body">
+      <div class="display-6">{{ resumen.ventas }}</div><div>Ventas</div>
+    </div></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">⚠️ Productos en riesgo de rotura de stock</div>
+  <div class="card-body p-0">
+    {% if bajo_stock %}
+    <table class="table table-striped mb-0">
+      <thead><tr><th>Referencia</th><th>Producto</th><th class="text-end">Stock</th><th class="text-end">Mínimo</th></tr></thead>
+      <tbody>
+        {% for p in bajo_stock %}
+        <tr>
+          <td>{{ p.referencia }}</td>
+          <td>{{ p.nombre }}</td>
+          <td class="text-end"><span class="badge bg-danger">{{ p.stock_actual }}</span></td>
+          <td class="text-end">{{ p.stock_minimo }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="text-muted p-3 mb-0">No hay productos por debajo del stock mínimo.</p>
+    {% endif %}
+  </div>
+</div>
+
+<p class="text-muted small mt-4">
+  Andamiaje inicial. Próximos módulos: productos, proveedores, ventas, compras, inventario y análisis.
+</p>
+{% endblock %}
