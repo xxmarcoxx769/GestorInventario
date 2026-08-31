@@ -24,9 +24,19 @@ def create_app(config_class=Config):
     # Blueprints
     from .auth.rutas import auth_bp
     from .main.rutas import main_bp
+    from .productos.rutas import productos_bp, categorias_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(main_bp)
+    app.register_blueprint(productos_bp)
+    app.register_blueprint(categorias_bp)
+
+    # Manejadores de error
+    from flask import render_template
+
+    @app.errorhandler(403)
+    def acceso_denegado(_error):
+        return render_template("errores/403.html"), 403
 
     # Comandos de consola
     from .cli import registrar_comandos

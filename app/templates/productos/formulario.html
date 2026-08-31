@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block titulo %}{{ "Nuevo" if modo == "crear" else "Editar" }} producto{% endblock %}
+
+{% block contenido %}
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <h1 class="h3 mb-4">{{ "Nuevo producto" if modo == "crear" else "Editar producto" }}</h1>
+
+    <form method="post" novalidate>
+      {{ form.hidden_tag() }}
+      <div class="row g-3">
+        <div class="col-md-4">
+          {{ form.referencia.label(class="form-label") }}
+          {{ form.referencia(class="form-control") }}
+          {% for e in form.referencia.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+        </div>
+        <div class="col-md-8">
+          {{ form.nombre.label(class="form-label") }}
+          {{ form.nombre(class="form-control") }}
+          {% for e in form.nombre.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+        </div>
+        <div class="col-md-6">
+          {{ form.categoria_id.label(class="form-label") }}
+          {{ form.categoria_id(class="form-select") }}
+          {% for e in form.categoria_id.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+        </div>
+        <div class="col-md-3">
+          {{ form.precio_venta.label(class="form-label") }}
+          {{ form.precio_venta(class="form-control") }}
+          {% for e in form.precio_venta.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+        </div>
+        <div class="col-md-3">
+          {{ form.coste_adquisicion.label(class="form-label") }}
+          {{ form.coste_adquisicion(class="form-control") }}
+          {% for e in form.coste_adquisicion.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+        </div>
+        <div class="col-md-3">
+          {{ form.stock_minimo.label(class="form-label") }}
+          {{ form.stock_minimo(class="form-control") }}
+          {% for e in form.stock_minimo.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+        </div>
+        {% if modo == "crear" %}
+        <div class="col-md-3">
+          {{ form.stock_inicial.label(class="form-label") }}
+          {{ form.stock_inicial(class="form-control") }}
+          <div class="form-text">Genera un movimiento de ajuste.</div>
+        </div>
+        {% else %}
+        <div class="col-md-3">
+          <label class="form-label">Stock actual</label>
+          <input class="form-control" value="{{ producto.stock_actual }}" disabled>
+          <div class="form-text">Solo cambia vía inventario.</div>
+        </div>
+        {% endif %}
+        <div class="col-12">
+          <div class="form-check">
+            {{ form.activo(class="form-check-input") }}
+            {{ form.activo.label(class="form-check-label") }}
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        {{ form.submit(class="btn btn-primary") }}
+        <a class="btn btn-outline-secondary" href="{{ url_for('productos.lista') }}">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

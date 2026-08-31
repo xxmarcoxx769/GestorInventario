@@ -11,6 +11,11 @@
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
       <a class="navbar-brand" href="{{ url_for('main.dashboard') }}">📦 Gestor de Inventario</a>
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.dashboard') }}">Panel</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('productos.lista') }}">Productos</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('categorias.lista') }}">Categorías</a></li>
+      </ul>
       <div class="d-flex align-items-center text-light">
         <span class="me-3">{{ current_user.nombre }} <span class="badge bg-secondary">{{ current_user.rol }}</span></span>
         <a class="btn btn-outline-light btn-sm" href="{{ url_for('auth.logout') }}">Salir</a>

@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block titulo %}Productos — Gestor de Inventario{% endblock %}
+
+{% block contenido %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3 mb-0">Productos</h1>
+  {% if puede_gestionar %}
+  <a class="btn btn-primary" href="{{ url_for('productos.nuevo') }}">+ Nuevo producto</a>
+  {% endif %}
+</div>
+
+<form class="row g-2 mb-3" method="get">
+  <div class="col-sm-5">
+    <input type="text" name="buscar" class="form-control" placeholder="Buscar por nombre o referencia"
+           value="{{ filtro.buscar }}">
+  </div>
+  <div class="col-sm-4">
+    <select name="categoria_id" class="form-select">
+      <option value="">Todas las categorías</option>
+      {% for c in categorias %}
+        <option value="{{ c.id }}" {% if filtro.categoria_id == c.id %}selected{% endif %}>{{ c.nombre }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-sm-2 form-check d-flex align-items-center ms-2">
+    <input class="form-check-input me-1" type="checkbox" name="bajo_stock" value="1" id="bajo_stock"
+           {% if filtro.bajo_stock %}checked{% endif %}>
+    <label class="form-check-label" for="bajo_stock">Bajo stock</label>
+  </div>
+  <div class="col-sm-1">
+    <button class="btn btn-outline-secondary w-100" type="submit">Filtrar</button>
+  </div>
+</form>
+
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-striped table-hover align-middle mb-0">
+      <thead>
+        <tr>
+          <th>Referencia</th><th>Nombre</th><th>Categoría</th>
+          <th class="text-end">P. venta</th><th class="text-end">Coste</th>
+          <th class="text-end">Margen</th><th class="text-end">Stock</th><th>Estado</th>
+          {% if puede_gestionar %}<th class="text-end">Acciones</th>{% endif %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in productos %}
+        <tr>
+          <td><code>{{ p.referencia }}</code></td>
+          <td>{{ p.nombre }}</td>
+          <td>{{ p.categoria.nombre }}</td>
+          <td class="text-end">{{ "%.2f"|format(p.precio_venta) }} €</td>
+          <td class="text-end">{{ "%.2f"|format(p.coste_adquisicion) }} €</td>
+          <td class="text-end">{{ "%.2f"|format(p.margen) }} €</td>
+          <td class="text-end">
+            {% if p.bajo_stock %}
+              <span class="badge bg-danger" title="Stock mínimo: {{ p.stock_minimo }}">{{ p.stock_actual }}</span>
+            {% else %}
+              {{ p.stock_actual }}
+            {% endif %}
+          </td>
+          <td>
+            {% if p.activo %}<span class="badge bg-success">Activo</span>
+            {% else %}<span class="badge bg-secondary">Inactivo</span>{% endif %}
+          </td>
+          {% if puede_gestionar %}
+          <td class="text-end text-nowrap">
+            <a class="btn btn-sm btn-outline-primary" href="{{ url_for('productos.editar', producto_id=p.id) }}">Editar</a>
+            <form class="d-inline" method="post" action="{{ url_for('productos.eliminar', producto_id=p.id) }}"
+                  onsubmit="return confirm('¿Eliminar «{{ p.nombre }}»?');">
+              <button class="btn btn-sm btn-outline-danger" type="submit">Eliminar</button>
+            </form>
+          </td>
+          {% endif %}
+        </tr>
+        {% else %}
+        <tr><td colspan="9" class="text-muted p-3">No hay productos que coincidan con el filtro.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

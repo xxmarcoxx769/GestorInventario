@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block titulo %}{{ "Nueva" if modo == "crear" else "Editar" }} categoría{% endblock %}
+
+{% block contenido %}
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <h1 class="h3 mb-4">{{ "Nueva categoría" if modo == "crear" else "Editar categoría" }}</h1>
+    <form method="post" novalidate>
+      {{ form.hidden_tag() }}
+      <div class="mb-3">
+        {{ form.nombre.label(class="form-label") }}
+        {{ form.nombre(class="form-control") }}
+        {% for e in form.nombre.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="mb-3">
+        {{ form.descripcion.label(class="form-label") }}
+        {{ form.descripcion(class="form-control", rows="3") }}
+        {% for e in form.descripcion.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+      </div>
+      {{ form.submit(class="btn btn-primary") }}
+      <a class="btn btn-outline-secondary" href="{{ url_for('categorias.lista') }}">Cancelar</a>
+    </form>
+  </div>
+</div>
+{% endblock %}
