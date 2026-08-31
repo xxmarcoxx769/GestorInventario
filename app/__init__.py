@@ -25,11 +25,13 @@ def create_app(config_class=Config):
     from .auth.rutas import auth_bp
     from .main.rutas import main_bp
     from .productos.rutas import productos_bp, categorias_bp
+    from .proveedores.rutas import proveedores_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(main_bp)
     app.register_blueprint(productos_bp)
     app.register_blueprint(categorias_bp)
+    app.register_blueprint(proveedores_bp)
 
     # Manejadores de error
     from flask import render_template

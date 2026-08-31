@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block titulo %}Comparativa de proveedores{% endblock %}
+
+{% block contenido %}
+<h1 class="h3 mb-3">Comparativa de proveedores por producto</h1>
+<p class="text-muted">Selecciona un producto para comparar qué proveedores lo suministran, ordenados del más barato al más caro.</p>
+
+<form class="row g-2 mb-4" method="get">
+  <div class="col-sm-6">
+    <select name="producto_id" class="form-select" onchange="this.form.submit()">
+      <option value="">— Elige un producto —</option>
+      {% for p in productos %}
+        <option value="{{ p.id }}" {% if seleccionado and seleccionado.id == p.id %}selected{% endif %}>
+          {{ p.referencia }} · {{ p.nombre }}
+        </option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-sm-2">
+    <button class="btn btn-outline-secondary w-100" type="submit">Comparar</button>
+  </div>
+</form>
+
+{% if seleccionado %}
+  <h2 class="h5 mb-3">{{ seleccionado.nombre }}
+    <small class="text-muted">— precio de venta {{ "%.2f"|format(seleccionado.precio_venta) }} €</small>
+  </h2>
+  <div class="card">
+    <div class="table-responsive">
+      <table class="table table-striped align-middle mb-0">
+        <thead>
+          <tr>
+            <th>#</th><th>Proveedor</th><th class="text-end">Precio</th>
+            <th class="text-end">Plazo (días)</th><th>Cond. pago</th><th>Preferente</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for s in suministros %}
+          <tr {% if loop.first %}class="table-success"{% endif %}>
+            <td>{{ loop.index }}</td>
+            <td><a href="{{ url_for('proveedores.detalle', proveedor_id=s.proveedor.id) }}">{{ s.proveedor.nombre }}</a></td>
+            <td class="text-end">
+              {{ "%.2f"|format(s.precio_proveedor) }} €
+              {% if loop.first %}<span class="badge bg-success ms-1">Más barato</span>{% endif %}
+            </td>
+            <td class="text-end">{{ s.plazo_entrega_dias if s.plazo_entrega_dias is not none else "—" }}</td>
+            <td>{{ s.proveedor.condiciones_pago or "—" }}</td>
+            <td>{% if s.preferente %}<span class="badge bg-primary">Preferente</span>{% else %}—{% endif %}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="6" class="text-muted p-3">Ningún proveedor suministra este producto todavía.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endif %}
+{% endblock %}

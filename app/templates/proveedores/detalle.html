@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block titulo %}{{ proveedor.nombre }} — Proveedor{% endblock %}
+
+{% block contenido %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ url_for('proveedores.lista') }}">Proveedores</a></li>
+    <li class="breadcrumb-item active">{{ proveedor.nombre }}</li>
+  </ol>
+</nav>
+
+<div class="d-flex justify-content-between align-items-start mb-3">
+  <div>
+    <h1 class="h3 mb-1">{{ proveedor.nombre }}
+      {% if proveedor.activo %}<span class="badge bg-success">Activo</span>
+      {% else %}<span class="badge bg-secondary">Inactivo</span>{% endif %}
+    </h1>
+    <div class="text-muted">CIF <code>{{ proveedor.cif }}</code></div>
+  </div>
+  {% if puede_gestionar %}
+  <a class="btn btn-outline-primary" href="{{ url_for('proveedores.editar', proveedor_id=proveedor.id) }}">Editar proveedor</a>
+  {% endif %}
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-4"><div class="card h-100"><div class="card-body">
+    <div class="text-muted small">Contacto</div>{{ proveedor.contacto or "—" }}
+  </div></div></div>
+  <div class="col-md-4"><div class="card h-100"><div class="card-body">
+    <div class="text-muted small">Email / Teléfono</div>{{ proveedor.email or "—" }}<br>{{ proveedor.telefono or "—" }}
+  </div></div></div>
+  <div class="col-md-4"><div class="card h-100"><div class="card-body">
+    <div class="text-muted small">Condiciones de pago</div>{{ proveedor.condiciones_pago or "—" }}
+  </div></div></div>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-2">
+  <h2 class="h5 mb-0">Productos suministrados</h2>
+  {% if puede_gestionar %}
+  <a class="btn btn-sm btn-primary" href="{{ url_for('proveedores.nuevo_suministro', proveedor_id=proveedor.id) }}">+ Añadir suministro</a>
+  {% endif %}
+</div>
+
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-striped align-middle mb-0">
+      <thead>
+        <tr>
+          <th>Referencia</th><th>Producto</th><th class="text-end">Precio proveedor</th>
+          <th class="text-end">Plazo (días)</th><th>Preferente</th>
+          {% if puede_gestionar %}<th class="text-end">Acciones</th>{% endif %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in suministros %}
+        <tr>
+          <td><code>{{ s.producto.referencia }}</code></td>
+          <td>{{ s.producto.nombre }}</td>
+          <td class="text-end">{{ "%.2f"|format(s.precio_proveedor) }} €</td>
+          <td class="text-end">{{ s.plazo_entrega_dias if s.plazo_entrega_dias is not none else "—" }}</td>
+          <td>{% if s.preferente %}<span class="badge bg-primary">Preferente</span>{% else %}—{% endif %}</td>
+          {% if puede_gestionar %}
+          <td class="text-end text-nowrap">
+            <a class="btn btn-sm btn-outline-primary" href="{{ url_for('proveedores.editar_suministro', suministro_id=s.id) }}">Editar</a>
+            <form class="d-inline" method="post" action="{{ url_for('proveedores.eliminar_suministro', suministro_id=s.id) }}"
+                  onsubmit="return confirm('¿Quitar este suministro?');">
+              <button class="btn btn-sm btn-outline-danger" type="submit">Quitar</button>
+            </form>
+          </td>
+          {% endif %}
+        </tr>
+        {% else %}
+        <tr><td colspan="6" class="text-muted p-3">Este proveedor no suministra productos todavía.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

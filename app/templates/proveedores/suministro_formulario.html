@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block titulo %}{{ "Añadir" if modo == "crear" else "Editar" }} suministro{% endblock %}
+
+{% block contenido %}
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <h1 class="h3 mb-1">{{ "Añadir suministro" if modo == "crear" else "Editar suministro" }}</h1>
+    <p class="text-muted mb-4">Proveedor: <strong>{{ proveedor.nombre }}</strong></p>
+
+    <form method="post" novalidate>
+      {{ form.hidden_tag() }}
+      <div class="mb-3">
+        {{ form.producto_id.label(class="form-label") }}
+        {% if bloquear_producto %}
+          {{ form.producto_id(class="form-select", disabled=true) }}
+          <input type="hidden" name="producto_id" value="{{ form.producto_id.data }}">
+          <div class="form-text">El producto no se puede cambiar; elimina y crea otro suministro si es necesario.</div>
+        {% else %}
+          {{ form.producto_id(class="form-select") }}
+        {% endif %}
+        {% for e in form.producto_id.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="row g-3">
+        <div class="col-md-6">
+          {{ form.precio_proveedor.label(class="form-label") }}
+          {{ form.precio_proveedor(class="form-control") }}
+          {% for e in form.precio_proveedor.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+        </div>
+        <div class="col-md-6">
+          {{ form.plazo_entrega_dias.label(class="form-label") }}
+          {{ form.plazo_entrega_dias(class="form-control") }}
+          {% for e in form.plazo_entrega_dias.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+        </div>
+      </div>
+      <div class="form-check my-3">
+        {{ form.preferente(class="form-check-input") }}
+        {{ form.preferente.label(class="form-check-label") }}
+      </div>
+      {{ form.submit(class="btn btn-primary") }}
+      <a class="btn btn-outline-secondary" href="{{ url_for('proveedores.detalle', proveedor_id=proveedor.id) }}">Cancelar</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

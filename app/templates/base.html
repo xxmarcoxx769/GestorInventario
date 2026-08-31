@@ -15,6 +15,8 @@
         <li class="nav-item"><a class="nav-link" href="{{ url_for('main.dashboard') }}">Panel</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ url_for('productos.lista') }}">Productos</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ url_for('categorias.lista') }}">Categorías</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('proveedores.lista') }}">Proveedores</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('proveedores.comparativa') }}">Comparativa</a></li>
       </ul>
       <div class="d-flex align-items-center text-light">
         <span class="me-3">{{ current_user.nombre }} <span class="badge bg-secondary">{{ current_user.rol }}</span></span>
