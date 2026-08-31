@@ -29,6 +29,7 @@ def create_app(config_class=Config):
     from .inventario.rutas import inventario_bp
     from .ventas.rutas import ventas_bp
     from .compras.rutas import compras_bp
+    from .analisis.rutas import analisis_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(main_bp)
@@ -38,6 +39,7 @@ def create_app(config_class=Config):
     app.register_blueprint(inventario_bp)
     app.register_blueprint(ventas_bp)
     app.register_blueprint(compras_bp)
+    app.register_blueprint(analisis_bp)
 
     # Manejadores de error
     from flask import render_template

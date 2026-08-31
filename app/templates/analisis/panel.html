@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block titulo %}Análisis — Gestor de Inventario{% endblock %}
+
+{% macro grafica(uri, alt) %}
+  {% if uri %}
+    <img src="{{ uri }}" alt="{{ alt }}" class="img-fluid">
+  {% else %}
+    <p class="text-muted p-3 mb-0">Sin datos suficientes para esta gráfica en el rango elegido.</p>
+  {% endif %}
+{% endmacro %}
+
+{% block contenido %}
+<h1 class="h3 mb-3">Análisis y métricas</h1>
+
+<form class="row g-2 mb-4 align-items-end" method="get">
+  <div class="col-auto">
+    <label class="form-label small mb-0">Desde</label>
+    <input type="date" name="desde" class="form-control" value="{{ desde }}">
+  </div>
+  <div class="col-auto">
+    <label class="form-label small mb-0">Hasta</label>
+    <input type="date" name="hasta" class="form-control" value="{{ hasta }}">
+  </div>
+  <div class="col-auto">
+    <button class="btn btn-primary" type="submit">Aplicar rango</button>
+  </div>
+</form>
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3">
+    <div class="card text-bg-primary h-100"><div class="card-body">
+      <div class="h4 mb-0">{{ "%.2f"|format(kpis.ingresos) }} €</div><div class="small">Ingresos</div>
+    </div></div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card text-bg-secondary h-100"><div class="card-body">
+      <div class="h4 mb-0">{{ "%.2f"|format(kpis.coste) }} €</div><div class="small">Coste</div>
+    </div></div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card text-bg-success h-100"><div class="card-body">
+      <div class="h4 mb-0">{{ "%.2f"|format(kpis.beneficio) }} €</div><div class="small">Beneficio</div>
+    </div></div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card text-bg-dark h-100"><div class="card-body">
+      <div class="h4 mb-0">{{ kpis.num_ventas }}</div><div class="small">Ventas ({{ kpis.unidades }} uds.)</div>
+    </div></div>
+  </div>
+</div>
+
+<div class="card mb-4">
+  <div class="card-body">{{ grafica(graf_evolucion, "Evolución de ventas") }}</div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-lg-6"><div class="card h-100"><div class="card-body">{{ grafica(graf_vendidos, "Más vendidos") }}</div></div></div>
+  <div class="col-lg-6"><div class="card h-100"><div class="card-body">{{ grafica(graf_rentables, "Más rentables") }}</div></div></div>
+  <div class="col-lg-6"><div class="card h-100"><div class="card-body">{{ grafica(graf_rotacion, "Menor rotación") }}</div></div></div>
+</div>
+
+<h2 class="h5 mb-3">Estimación de días hasta agotar stock <small class="text-muted">(ritmo de los últimos 30 días)</small></h2>
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-striped align-middle mb-0">
+      <thead>
+        <tr>
+          <th>Producto</th><th class="text-end">Stock actual</th>
+          <th class="text-end">Uds. vendidas (30d)</th><th class="text-end">Ritmo diario</th>
+          <th class="text-end">Días hasta agotar</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for fila in agotamiento %}
+        <tr>
+          <td>{{ fila.producto.referencia }} · {{ fila.producto.nombre }}</td>
+          <td class="text-end">{{ fila.producto.stock_actual }}</td>
+          <td class="text-end">{{ fila.unidades_periodo }}</td>
+          <td class="text-end">{{ "%.2f"|format(fila.ritmo_diario) }}</td>
+          <td class="text-end">
+            {% if fila.dias_restantes is none %}
+              <span class="text-muted">Sin ventas</span>
+            {% elif fila.dias_restantes < 15 %}
+              <span class="badge bg-danger">{{ "%.0f"|format(fila.dias_restantes) }} días</span>
+            {% elif fila.dias_restantes < 30 %}
+              <span class="badge bg-warning text-dark">{{ "%.0f"|format(fila.dias_restantes) }} días</span>
+            {% else %}
+              {{ "%.0f"|format(fila.dias_restantes) }} días
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
