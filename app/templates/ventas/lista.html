@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block titulo %}Ventas — Gestor de Inventario{% endblock %}
+
+{% block contenido %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3 mb-0">Ventas</h1>
+  {% if puede_gestionar %}
+  <a class="btn btn-primary" href="{{ url_for('ventas.nueva') }}">+ Nueva venta</a>
+  {% endif %}
+</div>
+
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-striped table-hover align-middle mb-0">
+      <thead>
+        <tr>
+          <th>#</th><th>Fecha</th><th>Cliente</th><th>Usuario</th>
+          <th class="text-end">Líneas</th><th class="text-end">Total</th><th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for v in ventas %}
+        <tr>
+          <td>{{ v.id }}</td>
+          <td class="text-nowrap">{{ v.fecha.strftime("%d/%m/%Y %H:%M") }}</td>
+          <td>{{ v.cliente or "—" }}</td>
+          <td>{{ v.usuario.nombre if v.usuario else "—" }}</td>
+          <td class="text-end">{{ v.lineas|length }}</td>
+          <td class="text-end fw-semibold">{{ "%.2f"|format(v.total) }} €</td>
+          <td class="text-end"><a class="btn btn-sm btn-outline-secondary" href="{{ url_for('ventas.detalle', venta_id=v.id) }}">Ver</a></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="7" class="text-muted p-3">No hay ventas registradas.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

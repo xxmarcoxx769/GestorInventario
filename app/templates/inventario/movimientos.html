@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block titulo %}Inventario — Movimientos{% endblock %}
+
+{% block contenido %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3 mb-0">Movimientos de inventario</h1>
+  {% if puede_gestionar %}
+  <a class="btn btn-primary" href="{{ url_for('inventario.ajuste') }}">Ajustar stock</a>
+  {% endif %}
+</div>
+
+<form class="row g-2 mb-3" method="get">
+  <div class="col-sm-5">
+    <select name="producto_id" class="form-select">
+      <option value="">Todos los productos</option>
+      {% for p in productos %}
+        <option value="{{ p.id }}" {% if filtro.producto_id == p.id %}selected{% endif %}>{{ p.referencia }} · {{ p.nombre }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-sm-3">
+    <select name="tipo" class="form-select">
+      <option value="">Todos los tipos</option>
+      {% for t in tipos %}
+        <option value="{{ t }}" {% if filtro.tipo == t %}selected{% endif %}>{{ t }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-sm-2">
+    <button class="btn btn-outline-secondary w-100" type="submit">Filtrar</button>
+  </div>
+</form>
+
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-striped align-middle mb-0">
+      <thead>
+        <tr>
+          <th>Fecha</th><th>Producto</th><th>Tipo</th><th class="text-end">Cantidad</th>
+          <th>Motivo</th><th>Usuario</th><th>Origen</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for m in movimientos %}
+        <tr>
+          <td class="text-nowrap">{{ m.fecha.strftime("%d/%m/%Y %H:%M") }}</td>
+          <td>{{ m.producto.referencia }} · {{ m.producto.nombre }}</td>
+          <td>
+            {% if m.tipo == "ENTRADA" %}<span class="badge bg-success">ENTRADA</span>
+            {% elif m.tipo == "SALIDA" %}<span class="badge bg-danger">SALIDA</span>
+            {% else %}<span class="badge bg-warning text-dark">AJUSTE</span>{% endif %}
+          </td>
+          <td class="text-end">
+            {% if m.tipo == "SALIDA" %}-{{ m.cantidad }}
+            {% elif m.tipo == "ENTRADA" %}+{{ m.cantidad }}
+            {% else %}{{ "%+d"|format(m.cantidad) }}{% endif %}
+          </td>
+          <td>{{ m.motivo or "—" }}</td>
+          <td>{{ m.usuario.nombre if m.usuario else "—" }}</td>
+          <td>
+            {% if m.venta_id %}<a href="{{ url_for('ventas.detalle', venta_id=m.venta_id) }}">Venta #{{ m.venta_id }}</a>
+            {% elif m.compra_id %}<a href="{{ url_for('compras.detalle', compra_id=m.compra_id) }}">Compra #{{ m.compra_id }}</a>
+            {% else %}—{% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="7" class="text-muted p-3">No hay movimientos que coincidan con el filtro.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

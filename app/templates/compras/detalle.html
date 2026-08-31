@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block titulo %}Compra #{{ compra.id }}{% endblock %}
+
+{% block contenido %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ url_for('compras.lista') }}">Compras</a></li>
+    <li class="breadcrumb-item active">Compra #{{ compra.id }}</li>
+  </ol>
+</nav>
+
+<div class="d-flex justify-content-between align-items-start mb-3">
+  <div>
+    <h1 class="h3 mb-1">Compra #{{ compra.id }}
+      {% if compra.estado == "RECIBIDA" %}<span class="badge bg-success">RECIBIDA</span>
+      {% elif compra.estado == "PENDIENTE" %}<span class="badge bg-warning text-dark">PENDIENTE</span>
+      {% else %}<span class="badge bg-secondary">CANCELADA</span>{% endif %}
+    </h1>
+    <p class="text-muted mb-0">
+      {{ compra.fecha.strftime("%d/%m/%Y %H:%M") }} ·
+      Proveedor: <a href="{{ url_for('proveedores.detalle', proveedor_id=compra.proveedor.id) }}">{{ compra.proveedor.nombre }}</a> ·
+      Registrada por {{ compra.usuario.nombre if compra.usuario else "—" }}
+    </p>
+  </div>
+  {% if puede_gestionar and compra.estado == "PENDIENTE" %}
+  <div class="text-nowrap">
+    <form class="d-inline" method="post" action="{{ url_for('compras.recibir', compra_id=compra.id) }}"
+          onsubmit="return confirm('¿Marcar como recibida? Se sumará el stock.');">
+      <button class="btn btn-success" type="submit">Recibir</button>
+    </form>
+    <form class="d-inline" method="post" action="{{ url_for('compras.cancelar', compra_id=compra.id) }}"
+          onsubmit="return confirm('¿Cancelar esta compra?');">
+      <button class="btn btn-outline-danger" type="submit">Cancelar</button>
+    </form>
+  </div>
+  {% endif %}
+</div>
+
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-striped align-middle mb-0">
+      <thead>
+        <tr><th>Producto</th><th class="text-end">Cantidad</th><th class="text-end">Coste unit.</th><th class="text-end">Subtotal</th></tr>
+      </thead>
+      <tbody>
+        {% for l in compra.lineas %}
+        <tr>
+          <td>{{ l.producto.referencia }} · {{ l.producto.nombre }}</td>
+          <td class="text-end">{{ l.cantidad }}</td>
+          <td class="text-end">{{ "%.2f"|format(l.coste_unitario) }} €</td>
+          <td class="text-end">{{ "%.2f"|format(l.subtotal) }} €</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr class="fw-semibold"><td colspan="3" class="text-end">Total</td><td class="text-end">{{ "%.2f"|format(compra.total) }} €</td></tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
+<a class="btn btn-outline-secondary mt-3" href="{{ url_for('compras.lista') }}">Volver</a>
+{% endblock %}

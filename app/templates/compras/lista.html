@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block titulo %}Compras — Gestor de Inventario{% endblock %}
+
+{% macro badge_estado(estado) -%}
+  {% if estado == "RECIBIDA" %}<span class="badge bg-success">RECIBIDA</span>
+  {% elif estado == "PENDIENTE" %}<span class="badge bg-warning text-dark">PENDIENTE</span>
+  {% else %}<span class="badge bg-secondary">CANCELADA</span>{% endif %}
+{%- endmacro %}
+
+{% block contenido %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3 mb-0">Compras</h1>
+  {% if puede_gestionar %}
+  <a class="btn btn-primary" href="{{ url_for('compras.nueva') }}">+ Nueva compra</a>
+  {% endif %}
+</div>
+
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-striped table-hover align-middle mb-0">
+      <thead>
+        <tr>
+          <th>#</th><th>Fecha</th><th>Proveedor</th><th>Estado</th>
+          <th class="text-end">Líneas</th><th class="text-end">Total</th><th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for compra in compras %}
+        <tr>
+          <td>{{ compra.id }}</td>
+          <td class="text-nowrap">{{ compra.fecha.strftime("%d/%m/%Y %H:%M") }}</td>
+          <td>{{ compra.proveedor.nombre }}</td>
+          <td>{{ badge_estado(compra.estado) }}</td>
+          <td class="text-end">{{ compra.lineas|length }}</td>
+          <td class="text-end fw-semibold">{{ "%.2f"|format(compra.total) }} €</td>
+          <td class="text-end"><a class="btn btn-sm btn-outline-secondary" href="{{ url_for('compras.detalle', compra_id=compra.id) }}">Ver</a></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="7" class="text-muted p-3">No hay compras registradas.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

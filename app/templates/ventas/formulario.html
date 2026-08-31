@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block titulo %}Nueva venta{% endblock %}
+
+{% block contenido %}
+<h1 class="h3 mb-4">Nueva venta</h1>
+
+<form method="post" novalidate>
+  {{ form.hidden_tag() }}
+
+  <div class="row g-3 mb-3">
+    <div class="col-md-6">
+      <label class="form-label">Cliente (opcional)</label>
+      <input type="text" name="cliente" class="form-control" placeholder="Nombre del cliente">
+    </div>
+  </div>
+
+  <div class="card mb-3">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <span>Líneas de la venta</span>
+      <button type="button" class="btn btn-sm btn-outline-primary" id="add-line">+ Añadir línea</button>
+    </div>
+    <div class="table-responsive">
+      <table class="table mb-0 align-middle">
+        <thead><tr><th style="width:60%">Producto</th><th>Cantidad</th><th></th></tr></thead>
+        <tbody id="lineas"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <button type="submit" class="btn btn-primary">Registrar venta</button>
+  <a class="btn btn-outline-secondary" href="{{ url_for('ventas.lista') }}">Cancelar</a>
+</form>
+
+<template id="fila-plantilla">
+  <tr>
+    <td>
+      <select name="producto_id" class="form-select" required>
+        <option value="">— Producto —</option>
+        {% for p in productos %}
+        <option value="{{ p.id }}">{{ p.referencia }} · {{ p.nombre }} ({{ "%.2f"|format(p.precio_venta) }} €, stock {{ p.stock_actual }})</option>
+        {% endfor %}
+      </select>
+    </td>
+    <td><input type="number" name="cantidad" class="form-control" min="1" value="1" required></td>
+    <td><button type="button" class="btn btn-outline-danger btn-sm quitar">×</button></td>
+  </tr>
+</template>
+
+<script>
+  const cuerpo = document.getElementById('lineas');
+  const plantilla = document.getElementById('fila-plantilla');
+  function anadirFila() {
+    cuerpo.appendChild(plantilla.content.cloneNode(true));
+  }
+  document.getElementById('add-line').addEventListener('click', anadirFila);
+  cuerpo.addEventListener('click', (e) => {
+    if (e.target.classList.contains('quitar')) e.target.closest('tr').remove();
+  });
+  anadirFila(); // primera línea por defecto
+</script>
+{% endblock %}

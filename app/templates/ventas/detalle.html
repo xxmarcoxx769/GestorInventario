@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block titulo %}Venta #{{ venta.id }}{% endblock %}
+
+{% block contenido %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ url_for('ventas.lista') }}">Ventas</a></li>
+    <li class="breadcrumb-item active">Venta #{{ venta.id }}</li>
+  </ol>
+</nav>
+
+<h1 class="h3 mb-1">Venta #{{ venta.id }}</h1>
+<p class="text-muted">
+  {{ venta.fecha.strftime("%d/%m/%Y %H:%M") }} ·
+  Cliente: {{ venta.cliente or "—" }} ·
+  Registrada por {{ venta.usuario.nombre if venta.usuario else "—" }}
+</p>
+
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-striped align-middle mb-0">
+      <thead>
+        <tr>
+          <th>Producto</th><th class="text-end">Cantidad</th><th class="text-end">Precio unit.</th>
+          <th class="text-end">Coste unit.</th><th class="text-end">Subtotal</th><th class="text-end">Beneficio</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for l in venta.lineas %}
+        <tr>
+          <td>{{ l.producto.referencia }} · {{ l.producto.nombre }}</td>
+          <td class="text-end">{{ l.cantidad }}</td>
+          <td class="text-end">{{ "%.2f"|format(l.precio_unitario) }} €</td>
+          <td class="text-end">{{ "%.2f"|format(l.coste_unitario) }} €</td>
+          <td class="text-end">{{ "%.2f"|format(l.subtotal) }} €</td>
+          <td class="text-end text-success">{{ "%.2f"|format(l.beneficio) }} €</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr class="fw-semibold">
+          <td colspan="4" class="text-end">Total</td>
+          <td class="text-end">{{ "%.2f"|format(venta.total) }} €</td>
+          <td class="text-end text-success">
+            {{ "%.2f"|format(venta.lineas | sum(attribute="beneficio")) }} €
+          </td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
+<a class="btn btn-outline-secondary mt-3" href="{{ url_for('ventas.lista') }}">Volver</a>
+{% endblock %}

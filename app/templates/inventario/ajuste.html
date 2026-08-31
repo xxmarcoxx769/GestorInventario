@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block titulo %}Ajustar stock{% endblock %}
+
+{% block contenido %}
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <h1 class="h3 mb-1">Ajuste de stock</h1>
+    <p class="text-muted mb-4">Registra un recuento físico. Se creará un movimiento de tipo AJUSTE con la diferencia.</p>
+    <form method="post" novalidate>
+      {{ form.hidden_tag() }}
+      <div class="mb-3">
+        {{ form.producto_id.label(class="form-label") }}
+        {{ form.producto_id(class="form-select") }}
+        {% for e in form.producto_id.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="mb-3">
+        {{ form.nuevo_stock.label(class="form-label") }}
+        {{ form.nuevo_stock(class="form-control") }}
+        {% for e in form.nuevo_stock.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="mb-3">
+        {{ form.motivo.label(class="form-label") }}
+        {{ form.motivo(class="form-control", placeholder="p. ej. Recuento anual, rotura, merma...") }}
+      </div>
+      {{ form.submit(class="btn btn-primary") }}
+      <a class="btn btn-outline-secondary" href="{{ url_for('inventario.movimientos') }}">Cancelar</a>
+    </form>
+  </div>
+</div>
+{% endblock %}
