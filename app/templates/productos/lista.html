@@ -66,10 +66,7 @@
           {% if puede_gestionar %}
           <td class="text-end text-nowrap">
             <a class="btn btn-sm btn-outline-primary" href="{{ url_for('productos.editar', producto_id=p.id) }}">Editar</a>
-            <form class="d-inline" method="post" action="{{ url_for('productos.eliminar', producto_id=p.id) }}"
-                  onsubmit="return confirm('¿Eliminar «{{ p.nombre }}»?');">
-              <button class="btn btn-sm btn-outline-danger" type="submit">Eliminar</button>
-            </form>
+            <a class="btn btn-sm btn-outline-danger" href="{{ url_for('productos.eliminar', producto_id=p.id) }}">Eliminar</a>
           </td>
           {% endif %}
         </tr>

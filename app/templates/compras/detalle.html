@@ -24,14 +24,8 @@
   </div>
   {% if puede_gestionar and compra.estado == "PENDIENTE" %}
   <div class="text-nowrap">
-    <form class="d-inline" method="post" action="{{ url_for('compras.recibir', compra_id=compra.id) }}"
-          onsubmit="return confirm('¿Marcar como recibida? Se sumará el stock.');">
-      <button class="btn btn-success" type="submit">Recibir</button>
-    </form>
-    <form class="d-inline" method="post" action="{{ url_for('compras.cancelar', compra_id=compra.id) }}"
-          onsubmit="return confirm('¿Cancelar esta compra?');">
-      <button class="btn btn-outline-danger" type="submit">Cancelar</button>
-    </form>
+    <a class="btn btn-success" href="{{ url_for('compras.recibir', compra_id=compra.id) }}">Recibir</a>
+    <a class="btn btn-outline-danger" href="{{ url_for('compras.cancelar', compra_id=compra.id) }}">Cancelar</a>
   </div>
   {% endif %}
 </div>

@@ -6,14 +6,15 @@
 
 <form method="post" novalidate>
   {{ form.hidden_tag() }}
+  <button type="submit" name="accion" value="guardar" class="visually-hidden" tabindex="-1" aria-hidden="true"></button>
 
   <div class="row g-3 mb-3">
     <div class="col-md-6">
       <label class="form-label">Proveedor</label>
-      <select name="proveedor_id" class="form-select" required>
+      <select name="proveedor_id" class="form-select">
         <option value="">— Selecciona proveedor —</option>
         {% for pr in proveedores %}
-        <option value="{{ pr.id }}">{{ pr.nombre }} ({{ pr.cif }})</option>
+        <option value="{{ pr.id }}" {% if proveedor_id|string == pr.id|string %}selected{% endif %}>{{ pr.nombre }} ({{ pr.cif }})</option>
         {% endfor %}
       </select>
     </div>
@@ -22,55 +23,35 @@
   <div class="card mb-3">
     <div class="card-header d-flex justify-content-between align-items-center">
       <span>Líneas de la compra</span>
-      <button type="button" class="btn btn-sm btn-outline-primary" id="add-line">+ Añadir línea</button>
+      <button type="submit" name="accion" value="add" class="btn btn-sm btn-outline-primary">+ Añadir línea</button>
     </div>
     <div class="table-responsive">
       <table class="table mb-0 align-middle">
         <thead><tr><th style="width:55%">Producto</th><th>Cantidad</th><th>Coste unit. (€)</th><th></th></tr></thead>
-        <tbody id="lineas"></tbody>
+        <tbody>
+          {% for l in lineas %}
+          <tr>
+            <td>
+              <select name="producto_id" class="form-select">
+                <option value="">— Producto —</option>
+                {% for p in productos %}
+                <option value="{{ p.id }}" {% if l.producto_id|string == p.id|string %}selected{% endif %}>{{ p.referencia }} · {{ p.nombre }}</option>
+                {% endfor %}
+              </select>
+            </td>
+            <td><input type="number" name="cantidad" class="form-control" min="1" value="{{ l.cantidad }}"></td>
+            <td><input type="number" name="coste_unitario" class="form-control" min="0" step="0.01" value="{{ l.coste_unitario }}"></td>
+            <td><button type="submit" name="quitar" value="{{ loop.index0 }}" class="btn btn-outline-danger btn-sm">×</button></td>
+          </tr>
+          {% endfor %}
+        </tbody>
       </table>
     </div>
   </div>
 
   <p class="text-muted small">La compra se crea en estado <strong>PENDIENTE</strong>. El stock solo se actualiza al recibirla.</p>
 
-  <button type="submit" class="btn btn-primary">Crear compra</button>
+  <button type="submit" name="accion" value="guardar" class="btn btn-primary">Crear compra</button>
   <a class="btn btn-outline-secondary" href="{{ url_for('compras.lista') }}">Cancelar</a>
 </form>
-
-<template id="fila-plantilla">
-  <tr>
-    <td>
-      <select name="producto_id" class="form-select" required>
-        <option value="">— Producto —</option>
-        {% for p in productos %}
-        <option value="{{ p.id }}" data-coste="{{ p.coste_adquisicion }}">{{ p.referencia }} · {{ p.nombre }}</option>
-        {% endfor %}
-      </select>
-    </td>
-    <td><input type="number" name="cantidad" class="form-control" min="1" value="1" required></td>
-    <td><input type="number" name="coste_unitario" class="form-control" min="0" step="0.01" value="0.00" required></td>
-    <td><button type="button" class="btn btn-outline-danger btn-sm quitar">×</button></td>
-  </tr>
-</template>
-
-<script>
-  const cuerpo = document.getElementById('lineas');
-  const plantilla = document.getElementById('fila-plantilla');
-  function anadirFila() { cuerpo.appendChild(plantilla.content.cloneNode(true)); }
-  document.getElementById('add-line').addEventListener('click', anadirFila);
-  cuerpo.addEventListener('click', (e) => {
-    if (e.target.classList.contains('quitar')) e.target.closest('tr').remove();
-  });
-  // Al elegir producto, precargar su coste de adquisición como sugerencia
-  cuerpo.addEventListener('change', (e) => {
-    if (e.target.name === 'producto_id') {
-      const opt = e.target.selectedOptions[0];
-      const coste = opt && opt.dataset.coste;
-      const inputCoste = e.target.closest('tr').querySelector('input[name="coste_unitario"]');
-      if (coste && inputCoste) inputCoste.value = coste;
-    }
-  });
-  anadirFila();
-</script>
 {% endblock %}

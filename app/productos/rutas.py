@@ -4,6 +4,7 @@ Permisos: ver = cualquier rol autenticado; crear/editar/eliminar = ADMIN o ALMAC
 """
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
+from flask_wtf import FlaskForm
 
 from ..modelos import RolUsuario
 from ..auth.decoradores import rol_requerido
@@ -111,15 +112,30 @@ def editar(producto_id):
     return render_template("productos/formulario.html", form=form, modo="editar", producto=producto)
 
 
-@productos_bp.route("/<int:producto_id>/eliminar", methods=["POST"])
+@productos_bp.route("/<int:producto_id>/eliminar", methods=["GET", "POST"])
 @rol_requerido(*GESTION)
 def eliminar(producto_id):
     try:
-        servicio.eliminar_producto(producto_id)
-        flash("Producto eliminado.", "success")
+        producto = servicio.obtener_producto(producto_id)
     except ErrorNegocio as e:
         flash(e.mensaje, "danger")
-    return redirect(url_for("productos.lista"))
+        return redirect(url_for("productos.lista"))
+
+    if request.method == "POST":
+        try:
+            servicio.eliminar_producto(producto_id)
+            flash("Producto eliminado.", "success")
+        except ErrorNegocio as e:
+            flash(e.mensaje, "danger")
+        return redirect(url_for("productos.lista"))
+
+    return render_template(
+        "confirmar.html", form=FlaskForm(),
+        titulo="Eliminar producto",
+        mensaje=f"¿Seguro que quieres eliminar «{producto.nombre}»? Esta acción no se puede deshacer.",
+        accion_url=url_for("productos.eliminar", producto_id=producto_id),
+        volver_url=url_for("productos.lista"), confirmar_texto="Sí, eliminar",
+    )
 
 
 # --------------------------- CATEGORÍAS ---------------------------
@@ -169,12 +185,27 @@ def editar(categoria_id):
     return render_template("categorias/formulario.html", form=form, modo="editar")
 
 
-@categorias_bp.route("/<int:categoria_id>/eliminar", methods=["POST"])
+@categorias_bp.route("/<int:categoria_id>/eliminar", methods=["GET", "POST"])
 @rol_requerido(*GESTION)
 def eliminar(categoria_id):
     try:
-        cat_servicio.eliminar_categoria(categoria_id)
-        flash("Categoría eliminada.", "success")
+        categoria = cat_servicio.obtener_categoria(categoria_id)
     except ErrorNegocio as e:
         flash(e.mensaje, "danger")
-    return redirect(url_for("categorias.lista"))
+        return redirect(url_for("categorias.lista"))
+
+    if request.method == "POST":
+        try:
+            cat_servicio.eliminar_categoria(categoria_id)
+            flash("Categoría eliminada.", "success")
+        except ErrorNegocio as e:
+            flash(e.mensaje, "danger")
+        return redirect(url_for("categorias.lista"))
+
+    return render_template(
+        "confirmar.html", form=FlaskForm(),
+        titulo="Eliminar categoría",
+        mensaje=f"¿Seguro que quieres eliminar la categoría «{categoria.nombre}»?",
+        accion_url=url_for("categorias.eliminar", categoria_id=categoria_id),
+        volver_url=url_for("categorias.lista"), confirmar_texto="Sí, eliminar",
+    )

@@ -4,6 +4,7 @@ Permisos: ver = cualquier rol autenticado; crear/editar/eliminar = ADMIN o ALMAC
 """
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
+from flask_wtf import FlaskForm
 
 from ..modelos import RolUsuario
 from ..auth.decoradores import rol_requerido
@@ -66,15 +67,30 @@ def editar(proveedor_id):
     return render_template("proveedores/formulario.html", form=form, modo="editar")
 
 
-@proveedores_bp.route("/<int:proveedor_id>/eliminar", methods=["POST"])
+@proveedores_bp.route("/<int:proveedor_id>/eliminar", methods=["GET", "POST"])
 @rol_requerido(*GESTION)
 def eliminar(proveedor_id):
     try:
-        servicio.eliminar_proveedor(proveedor_id)
-        flash("Proveedor eliminado.", "success")
+        proveedor = servicio.obtener_proveedor(proveedor_id)
     except ErrorNegocio as e:
         flash(e.mensaje, "danger")
-    return redirect(url_for("proveedores.lista"))
+        return redirect(url_for("proveedores.lista"))
+
+    if request.method == "POST":
+        try:
+            servicio.eliminar_proveedor(proveedor_id)
+            flash("Proveedor eliminado.", "success")
+        except ErrorNegocio as e:
+            flash(e.mensaje, "danger")
+        return redirect(url_for("proveedores.lista"))
+
+    return render_template(
+        "confirmar.html", form=FlaskForm(),
+        titulo="Eliminar proveedor",
+        mensaje=f"¿Seguro que quieres eliminar «{proveedor.nombre}»? Se eliminarán también sus suministros.",
+        accion_url=url_for("proveedores.eliminar", proveedor_id=proveedor_id),
+        volver_url=url_for("proveedores.lista"), confirmar_texto="Sí, eliminar",
+    )
 
 
 @proveedores_bp.route("/<int:proveedor_id>")
@@ -168,16 +184,32 @@ def editar_suministro(suministro_id):
     )
 
 
-@proveedores_bp.route("/suministros/<int:suministro_id>/eliminar", methods=["POST"])
+@proveedores_bp.route("/suministros/<int:suministro_id>/eliminar", methods=["GET", "POST"])
 @rol_requerido(*GESTION)
 def eliminar_suministro(suministro_id):
     try:
-        proveedor_id = servicio.eliminar_suministro(suministro_id)
-        flash("Suministro eliminado.", "success")
-        return redirect(url_for("proveedores.detalle", proveedor_id=proveedor_id))
+        suministro = servicio.obtener_suministro(suministro_id)
     except ErrorNegocio as e:
         flash(e.mensaje, "danger")
         return redirect(url_for("proveedores.lista"))
+
+    if request.method == "POST":
+        try:
+            servicio.eliminar_suministro(suministro_id)
+            flash("Suministro eliminado.", "success")
+        except ErrorNegocio as e:
+            flash(e.mensaje, "danger")
+        return redirect(url_for("proveedores.detalle", proveedor_id=suministro.proveedor_id))
+
+    return render_template(
+        "confirmar.html", form=FlaskForm(),
+        titulo="Quitar suministro",
+        mensaje=f"¿Quitar «{suministro.producto.nombre}» de los productos que suministra "
+                f"«{suministro.proveedor.nombre}»?",
+        accion_url=url_for("proveedores.eliminar_suministro", suministro_id=suministro_id),
+        volver_url=url_for("proveedores.detalle", proveedor_id=suministro.proveedor_id),
+        confirmar_texto="Sí, quitar",
+    )
 
 
 def _datos_suministro(form) -> dict:

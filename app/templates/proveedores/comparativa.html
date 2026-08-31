@@ -7,7 +7,7 @@
 
 <form class="row g-2 mb-4" method="get">
   <div class="col-sm-6">
-    <select name="producto_id" class="form-select" onchange="this.form.submit()">
+    <select name="producto_id" class="form-select">
       <option value="">— Elige un producto —</option>
       {% for p in productos %}
         <option value="{{ p.id }}" {% if seleccionado and seleccionado.id == p.id %}selected{% endif %}>

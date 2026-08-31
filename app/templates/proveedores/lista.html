@@ -48,10 +48,7 @@
             <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('proveedores.detalle', proveedor_id=p.id) }}">Ver</a>
             {% if puede_gestionar %}
             <a class="btn btn-sm btn-outline-primary" href="{{ url_for('proveedores.editar', proveedor_id=p.id) }}">Editar</a>
-            <form class="d-inline" method="post" action="{{ url_for('proveedores.eliminar', proveedor_id=p.id) }}"
-                  onsubmit="return confirm('¿Eliminar «{{ p.nombre }}»?');">
-              <button class="btn btn-sm btn-outline-danger" type="submit">Eliminar</button>
-            </form>
+            <a class="btn btn-sm btn-outline-danger" href="{{ url_for('proveedores.eliminar', proveedor_id=p.id) }}">Eliminar</a>
             {% endif %}
           </td>
         </tr>

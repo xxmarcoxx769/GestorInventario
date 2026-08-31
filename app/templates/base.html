@@ -32,16 +32,11 @@
   <main class="container py-4">
     {% with mensajes = get_flashed_messages(with_categories=true) %}
       {% for categoria, mensaje in mensajes %}
-        <div class="alert alert-{{ categoria }} alert-dismissible fade show" role="alert">
-          {{ mensaje }}
-          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
+        <div class="alert alert-{{ categoria }}" role="alert">{{ mensaje }}</div>
       {% endfor %}
     {% endwith %}
 
     {% block contenido %}{% endblock %}
   </main>
-
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

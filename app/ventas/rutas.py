@@ -2,6 +2,10 @@
 
 Permisos: ver = cualquier rol; registrar ventas = ADMIN o FINANCIERO.
 Cada venta descuenta stock (movimientos de SALIDA) en una única transacción.
+
+El formulario de nueva venta gestiona sus líneas EN EL SERVIDOR (sin JavaScript):
+los botones "Añadir/Quitar línea" reenvían el formulario y Python re-renderiza las
+filas conservando lo introducido.
 """
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
@@ -30,20 +34,29 @@ def lista():
 @ventas_bp.route("/nueva", methods=["GET", "POST"])
 @rol_requerido(*GESTION)
 def nueva():
-    form = FlaskForm()  # solo para el token CSRF
+    form = FlaskForm()  # token CSRF
     productos = producto_servicio.listar_productos()
+    cliente = ""
+    lineas = [{"producto_id": "", "cantidad": "1"}]
 
     if request.method == "POST" and form.validate_on_submit():
-        try:
-            lineas = _parsear_lineas(request)
-            venta = servicio.crear_venta(current_user.id, request.form.get("cliente"), lineas)
-            flash(f"Venta #{venta.id} registrada por {venta.total:.2f} €.", "success")
-            return redirect(url_for("ventas.detalle", venta_id=venta.id))
-        except (ErrorNegocio, ValueError) as e:
-            mensaje = e.mensaje if isinstance(e, ErrorNegocio) else "Revisa las cantidades introducidas."
-            flash(mensaje, "danger")
+        cliente = request.form.get("cliente", "")
+        lineas = _leer_filas(request)
 
-    return render_template("ventas/formulario.html", form=form, productos=productos)
+        if request.form.get("quitar") is not None:
+            _quitar_fila(lineas, request.form.get("quitar", type=int))
+        elif request.form.get("accion") == "add":
+            lineas.append({"producto_id": "", "cantidad": "1"})
+        elif request.form.get("accion") == "guardar":
+            try:
+                venta = servicio.crear_venta(current_user.id, cliente, _lineas_validas(lineas))
+                flash(f"Venta #{venta.id} registrada por {venta.total:.2f} €.", "success")
+                return redirect(url_for("ventas.detalle", venta_id=venta.id))
+            except ErrorNegocio as e:
+                flash(e.mensaje, "danger")
+
+    return render_template("ventas/formulario.html", form=form, productos=productos,
+                           cliente=cliente, lineas=lineas)
 
 
 @ventas_bp.route("/<int:venta_id>")
@@ -57,15 +70,34 @@ def detalle(venta_id):
     return render_template("ventas/detalle.html", venta=venta)
 
 
-def _parsear_lineas(req) -> list[dict]:
-    """Lee las columnas repetidas producto_id[] y cantidad[] del formulario."""
+# --------------------------- helpers de líneas ---------------------------
+
+def _leer_filas(req) -> list[dict]:
+    """Lee las filas tal cual (conservando vacías) para poder re-renderizarlas."""
     ids = req.form.getlist("producto_id")
     cantidades = req.form.getlist("cantidad")
+    filas = [{"producto_id": pid, "cantidad": cant}
+             for pid, cant in zip(ids, cantidades)]
+    return filas or [{"producto_id": "", "cantidad": "1"}]
+
+
+def _quitar_fila(filas: list[dict], indice) -> None:
+    if indice is not None and 0 <= indice < len(filas):
+        filas.pop(indice)
+    if not filas:
+        filas.append({"producto_id": "", "cantidad": "1"})
+
+
+def _lineas_validas(filas: list[dict]) -> list[dict]:
     lineas = []
-    for pid, cant in zip(ids, cantidades):
-        if not pid:
+    for fila in filas:
+        if not fila["producto_id"]:
             continue
-        lineas.append({"producto_id": int(pid), "cantidad": int(cant or 0)})
+        try:
+            cantidad = int(fila["cantidad"])
+        except (TypeError, ValueError):
+            raise ErrorNegocio("Las cantidades deben ser números enteros.")
+        lineas.append({"producto_id": int(fila["producto_id"]), "cantidad": cantidad})
     if not lineas:
         raise ErrorNegocio("Añade al menos una línea con producto y cantidad.")
     return lineas
