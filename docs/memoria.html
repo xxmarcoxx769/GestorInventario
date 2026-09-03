@@ -1,0 +1,449 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Memoria - Gestor de Inventario</title>
+<style>
+@page { size: A4; margin: 2cm; }
+* { box-sizing: border-box; }
+html, body { background: #ffffff; }
+body {
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-size: 11pt;
+  line-height: 1.5;
+  color: #1a1a1a;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 1cm;
+}
+h1 { font-size: 24pt; color: #0d3b66; margin: 0 0 .3em; }
+h2 { font-size: 17pt; color: #0d3b66; border-bottom: 2px solid #0d3b66;
+     padding-bottom: .2em; margin-top: 1.2em; page-break-before: always; }
+h3 { font-size: 13pt; color: #14507a; margin-top: 1em; }
+h2:first-of-type { page-break-before: avoid; }
+p { margin: .5em 0; text-align: justify; }
+ul, ol { margin: .4em 0 .8em 1.2em; }
+li { margin: .15em 0; }
+code { background: #f2f4f7; padding: .1em .3em; border-radius: 3px;
+       font-family: Consolas, monospace; font-size: .9em; }
+pre { background: #f2f4f7; padding: .8em 1em; border-radius: 6px;
+      overflow-x: auto; border: 1px solid #e0e4ea; page-break-inside: avoid; }
+pre code { background: none; padding: 0; }
+table { border-collapse: collapse; width: 100%; margin: .8em 0;
+        font-size: .92em; page-break-inside: avoid; }
+th, td { border: 1px solid #cbd2da; padding: .45em .6em; text-align: left;
+         vertical-align: top; }
+th { background: #0d3b66; color: #fff; }
+tr:nth-child(even) td { background: #f6f8fa; }
+img { max-width: 100%; height: auto; display: block; margin: .6em auto;
+      border: 1px solid #d0d7de; border-radius: 4px; page-break-inside: avoid; }
+/* Pies de figura: párrafos que son solo texto en cursiva */
+p > em:only-child { display: block; text-align: center; color: #555;
+                    font-size: .9em; margin-top: -.2em; margin-bottom: 1em; }
+hr { display: none; }
+blockquote { border-left: 4px solid #0d3b66; margin: .8em 0; padding: .3em 1em;
+             background: #f6f8fa; color: #333; }
+a { color: #0d3b66; }
+</style>
+</head>
+<body>
+<h1>Gestor de Inventario para una Empresa de Suministros Tecnológicos</h1>
+<p><strong>Proyecto Final de Python — Propuesta A</strong></p>
+<p><strong>Nombre y apellidos:</strong> Marco Jiménez Lorente<br />
+<strong>Fecha:</strong> <em>[completar]</em></p>
+<hr />
+<h2>Índice de contenidos</h2>
+<ol>
+<li>Descripción general del proyecto</li>
+<li>Objetivos y alcance del proyecto</li>
+<li>Stack tecnológico y alternativas evaluadas</li>
+<li>Modelo de datos: explicación de la base de datos y esquema</li>
+<li>Explicación de los requisitos de la aplicación</li>
+<li>Manual de instalación</li>
+<li>Conclusiones</li>
+<li>Evolutivos del proyecto</li>
+</ol>
+<hr />
+<h2>1. Descripción general del proyecto</h2>
+<p>El proyecto consiste en una <strong>aplicación web</strong> para la gestión integral de una<br />
+empresa de suministros tecnológicos. La empresa ha crecido en volumen de productos<br />
+y ventas, pero su sistema anterior solo permitía <strong>registrar datos</strong>, sin ofrecer<br />
+análisis ni información estratégica. Esto provocaba roturas de stock inesperadas,<br />
+acumulación de productos de baja rotación, desconocimiento del margen real por<br />
+producto y dificultad para comparar proveedores.</p>
+<p>La aplicación desarrollada no se limita a almacenar información: la <strong>analiza y la<br />
+transforma en conocimiento útil</strong> para la toma de decisiones. Permite gestionar<br />
+productos, categorías, proveedores, ventas, compras e inventario, y ofrece un panel<br />
+de análisis con métricas e indicadores calculados dinámicamente (productos más<br />
+vendidos y más rentables, evolución de ventas, estimación de días hasta agotar<br />
+stock, etc.).</p>
+<p>La aplicación incorpora un <strong>sistema de autenticación con control de accesos por<br />
+rol</strong> (administrador, responsable de almacén y responsable financiero), de forma que<br />
+cada usuario accede únicamente a las funcionalidades que le corresponden.</p>
+<p>Una decisión de diseño importante es que <strong>toda la lógica de la interfaz se resuelve<br />
+en el servidor con Python</strong>: los formularios dinámicos, las confirmaciones de las<br />
+acciones y hasta las gráficas se generan en el backend, sin utilizar JavaScript. Con<br />
+ello el proyecto demuestra de forma clara la comunicación entre el backend y el<br />
+frontend usando exclusivamente Python.</p>
+<hr />
+<h2>2. Objetivos y alcance del proyecto</h2>
+<h3>2.1. Objetivos</h3>
+<p>Los objetivos del proyecto son claros, medibles y realistas:</p>
+<ul>
+<li><strong>Centralizar la gestión</strong> del catálogo (productos y categorías), los proveedores,<br />
+  las ventas, las compras y el inventario en una única aplicación.</li>
+<li><strong>Garantizar la integridad del stock</strong>: que cada cambio de existencias quede<br />
+  registrado como un movimiento de inventario y que las ventas y compras actualicen<br />
+  el stock de forma automática y consistente.</li>
+<li><strong>Controlar el acceso</strong> mediante autenticación segura y <strong>tres roles</strong> con permisos<br />
+  diferenciados.</li>
+<li><strong>Aportar información para la decisión</strong>: calcular márgenes, detectar riesgo de<br />
+  rotura de stock, medir la rotación y estimar los días restantes hasta agotar cada<br />
+  producto.</li>
+<li><strong>Comparar proveedores</strong> por precio y condiciones para un mismo producto.</li>
+<li><strong>Visualizar métricas</strong> mediante gráficas generadas en el servidor.</li>
+<li><strong>Ser reproducible</strong>: que cualquier persona (incluido el tribunal) pueda instalarlo<br />
+  y ejecutarlo sin problemas de versiones, mediante un entorno virtual y dependencias<br />
+  fijadas.</li>
+</ul>
+<h3>2.2. Alcance</h3>
+<p><strong>Incluido en el proyecto:</strong></p>
+<ul>
+<li>Autenticación por sesión y control de accesos por rol.</li>
+<li>CRUD de productos y categorías.</li>
+<li>CRUD de proveedores y gestión de suministros (relación producto–proveedor con<br />
+  precio por proveedor), incluyendo comparativa de precios.</li>
+<li>Registro de ventas que descuentan stock, y de compras con flujo<br />
+  pendiente → recibida que incrementa stock.</li>
+<li>Historial completo de movimientos de inventario (entradas, salidas y ajustes) y<br />
+  ajuste manual de stock por recuento.</li>
+<li>Panel de análisis con KPIs y gráficas (Matplotlib) y estimación de días hasta<br />
+  agotar stock.</li>
+<li>Interfaz web responsive con Bootstrap, servida íntegramente desde el servidor.</li>
+</ul>
+<p><strong>Fuera del alcance (para acotar el proyecto):</strong></p>
+<ul>
+<li>No hay pasarela de pago ni gestión contable/fiscal.</li>
+<li>No hay gestión de clientes como entidad (CRM); el cliente de una venta es un campo<br />
+  de texto opcional.</li>
+<li>No hay envío de correos ni notificaciones externas.</li>
+<li>La gestión de usuarios se realiza por línea de comandos (creación de<br />
+  administradores), no desde una interfaz gráfica de administración de usuarios.</li>
+<li>No es una aplicación multi-idioma ni multi-empresa.</li>
+</ul>
+<hr />
+<h2>3. Stack tecnológico y alternativas evaluadas</h2>
+<h3>3.1. Stack tecnológico</h3>
+<table>
+<thead>
+<tr>
+<th>Capa</th>
+<th>Tecnología</th>
+<th>Función</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Lenguaje</td>
+<td><strong>Python 3.13</strong></td>
+<td>Lenguaje principal del proyecto</td>
+</tr>
+<tr>
+<td>Framework web</td>
+<td><strong>Flask 3.1</strong></td>
+<td>Servidor web y enrutado (patrón <em>application factory</em> + <em>blueprints</em>)</td>
+</tr>
+<tr>
+<td>ORM</td>
+<td><strong>SQLAlchemy 2.0</strong> (Flask-SQLAlchemy)</td>
+<td>Mapeo objeto-relacional (programación orientada a objetos)</td>
+</tr>
+<tr>
+<td>Base de datos</td>
+<td><strong>SQLite 3</strong></td>
+<td>Base de datos relacional en un único fichero, sin servidor</td>
+</tr>
+<tr>
+<td>Autenticación</td>
+<td><strong>Flask-Login</strong></td>
+<td>Sesión de usuario y control de acceso</td>
+</tr>
+<tr>
+<td>Formularios</td>
+<td><strong>Flask-WTF / WTForms</strong></td>
+<td>Validación de formularios y protección CSRF</td>
+</tr>
+<tr>
+<td>Plantillas</td>
+<td><strong>Jinja2</strong></td>
+<td>Renderizado del HTML en el servidor</td>
+</tr>
+<tr>
+<td>Estilos</td>
+<td><strong>Bootstrap 5</strong></td>
+<td>Diseño responsive (servido en local)</td>
+</tr>
+<tr>
+<td>Gráficas</td>
+<td><strong>Matplotlib</strong></td>
+<td>Generación de gráficas en el servidor (backend <code>Agg</code>)</td>
+</tr>
+<tr>
+<td>Seguridad</td>
+<td><strong>Werkzeug</strong></td>
+<td>Hash de contraseñas</td>
+</tr>
+</tbody>
+</table>
+<h3>3.2. Alternativas evaluadas</h3>
+<table>
+<thead>
+<tr>
+<th>Elección</th>
+<th>Alternativa evaluada</th>
+<th>Motivo de la decisión</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Flask</strong></td>
+<td>Django</td>
+<td>Flask es ligero y didáctico; Django incorpora ORM y panel de administración propios, pero resultaba excesivo para el alcance y ocultaba la lógica que se quería mostrar.</td>
+</tr>
+<tr>
+<td><strong>SQLite 3</strong></td>
+<td>PostgreSQL / MySQL</td>
+<td>SQLite no requiere instalar ningún servidor: la base de datos es un fichero. Esto facilita enormemente que el proyecto se ejecute en cualquier equipo sin configuración.</td>
+</tr>
+<tr>
+<td><strong>SQLAlchemy (ORM)</strong></td>
+<td>Módulo <code>sqlite3</code> directo</td>
+<td>El ORM permite trabajar con clases (POO), gestiona relaciones y transacciones, y mantiene el código portable y legible.</td>
+</tr>
+<tr>
+<td><strong>Aplicación renderizada en servidor</strong></td>
+<td>API REST + frontend (React)</td>
+<td>El renderizado en servidor simplifica la ejecución (un solo proceso, sin compilar el frontend) y facilita las capturas para la documentación.</td>
+</tr>
+<tr>
+<td><strong>Matplotlib en el servidor</strong></td>
+<td>Chart.js (JavaScript)</td>
+<td>Se optó por generar las gráficas en Python e inyectarlas como imágenes: evita depender de JavaScript, refuerza la comunicación backend↔frontend y funciona sin conexión a internet.</td>
+</tr>
+<tr>
+<td><strong>Flask-Login (sesión)</strong></td>
+<td>JWT</td>
+<td>Para una aplicación renderizada en servidor, la sesión con cookie es más simple y natural que un token JWT.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>4. Modelo de datos: explicación de la base de datos y esquema</h2>
+<p>La aplicación utiliza una <strong>base de datos relacional en SQLite 3</strong>, gestionada<br />
+mediante el ORM SQLAlchemy. El esquema consta de <strong>10 tablas</strong> que cubren usuarios y<br />
+roles, catálogo, proveedores, ventas, compras y el historial de inventario.</p>
+<p>El diagrama entidad-relación completo y el diccionario de datos se encuentran en el<br />
+documento <a href="modelo-datos.md">modelo-datos.md</a>. A continuación se resume el diseño:</p>
+<ul>
+<li><strong><code>usuarios</code></strong>: credenciales y rol (ADMIN, ALMACEN, FINANCIERO).</li>
+<li><strong><code>categorias</code></strong> y <strong><code>productos</code></strong>: catálogo. Cada producto guarda referencia,<br />
+  precio de venta, coste de adquisición, stock y stock mínimo. El <strong>margen de beneficio se calcula</strong> (precio − coste), no se almacena editable.</li>
+<li><strong><code>proveedores</code></strong> y <strong><code>producto_proveedor</code></strong>: proveedores y la relación N:M que<br />
+  indica qué proveedor suministra qué producto y a qué precio.</li>
+<li><strong><code>ventas</code></strong> y <strong><code>lineas_venta</code></strong>: cada línea <strong>congela</strong> el precio y el coste en el<br />
+  momento de la venta, para que las métricas históricas sean correctas.</li>
+<li><strong><code>compras</code></strong> y <strong><code>lineas_compra</code></strong>: compras a proveedores, con estado<br />
+  (PENDIENTE / RECIBIDA / CANCELADA).</li>
+<li><strong><code>movimientos_inventario</code></strong>: <strong>fuente de verdad del stock</strong>. Toda entrada, salida<br />
+  o ajuste queda registrada aquí; el campo <code>stock_actual</code> de <code>productos</code> es un<br />
+  contador que se mantiene sincronizado en la misma transacción.</li>
+</ul>
+<p>Consideraciones específicas de SQLite tenidas en cuenta: activación de claves foráneas<br />
+(<code>PRAGMA foreign_keys = ON</code>), uso de <code>Numeric</code> para importes y fechas en formato<br />
+ISO-8601.</p>
+<h3>4.1. Tablas de la base de datos (con datos de ejemplo)</h3>
+<p>A continuación se muestran las 10 tablas de la base de datos con datos de ejemplo,<br />
+visualizadas desde DBeaver.</p>
+<p><img alt="Tabla usuarios" src="img/usuarios_page-0001.jpg" /><br />
+<em>Figura 1. Tabla <code>usuarios</code>.</em></p>
+<p><img alt="Tabla categorias" src="img/categorias_page-0001.jpg" /><br />
+<em>Figura 2. Tabla <code>categorias</code>.</em></p>
+<p><img alt="Tabla productos" src="img/productos_page-0001.jpg" /><br />
+<em>Figura 3. Tabla <code>productos</code>.</em></p>
+<p><img alt="Tabla proveedores" src="img/proveedores_page-0001.jpg" /><br />
+<em>Figura 4. Tabla <code>proveedores</code>.</em></p>
+<p><img alt="Tabla producto_proveedor" src="img/producto_proveedor_page-0001.jpg" /><br />
+<em>Figura 5. Tabla <code>producto_proveedor</code> (relación N:M productos–proveedores).</em></p>
+<p><img alt="Tabla ventas" src="img/ventas_page-0001.jpg" /><br />
+<em>Figura 6. Tabla <code>ventas</code>.</em></p>
+<p><img alt="Tabla lineas_venta" src="img/lineas_venta_page-0001.jpg" /><br />
+<em>Figura 7. Tabla <code>lineas_venta</code>.</em></p>
+<p><img alt="Tabla compras" src="img/compras_page-0001.jpg" /><br />
+<em>Figura 8. Tabla <code>compras</code>.</em></p>
+<p><img alt="Tabla lineas_compra" src="img/lineas_compra_page-0001.jpg" /><br />
+<em>Figura 9. Tabla <code>lineas_compra</code>.</em></p>
+<p><img alt="Tabla movimientos_inventario" src="img/movimientos_inventario_page-0001.jpg" /><br />
+<em>Figura 10. Tabla <code>movimientos_inventario</code> (fuente de verdad del stock).</em></p>
+<hr />
+<h2>5. Explicación de los requisitos de la aplicación</h2>
+<p>Cada requisito funcional se acompaña de capturas de pantalla que demuestran su<br />
+funcionamiento.</p>
+<h3>5.1. Requisitos funcionales</h3>
+<p><strong>RF1 — Registro y control de acceso.</strong><br />
+La aplicación incluye autenticación mediante email y contraseña (contraseñas<br />
+almacenadas con hash). Existen tres roles con permisos diferenciados. Cada vista está<br />
+protegida según el rol mediante un decorador <code>rol_requerido</code>.</p>
+<p><img alt="Pantalla de inicio de sesión" src="img/Pantalla_inicio_sesion.png" /><br />
+<em>Figura 11. Pantalla de inicio de sesión.</em></p>
+<p><img alt="Acceso denegado (error 403)" src="img/Error403.png" /><br />
+<em>Figura 12. Mensaje de acceso denegado (error 403) al intentar una acción sin permiso.</em></p>
+<p><strong>RF2 — Base de datos relacional.</strong><br />
+La información se almacena en 10 tablas relacionadas correctamente diseñadas. El esquema,<br />
+el diagrama entidad-relación y las tablas con datos de ejemplo se detallan en el<br />
+<strong>apartado 4</strong> (Figuras 1–10).</p>
+<p><strong>RF3 — Gestión de productos y categorías.</strong><br />
+Alta, edición y baja de productos y categorías. La referencia de producto y el nombre<br />
+de categoría son únicos. El margen se muestra calculado. La baja está protegida: no se<br />
+puede eliminar un producto con movimientos, ventas o compras asociados.</p>
+<p><img alt="Listado de productos" src="img/Listado_productos.png" /><br />
+<em>Figura 13. Listado de productos con su margen y stock.</em></p>
+<p><img alt="Formulario de alta de producto" src="img/Formulario_alta_producto.png" /><br />
+<em>Figura 14. Formulario de alta de producto.</em></p>
+<p><img alt="Formulario de edición de producto" src="img/Formulario_editar_producto.png" /><br />
+<em>Figura 15. Formulario de edición de producto.</em></p>
+<p><strong>RF4 — Gestión de inventario y actualización automática de stock.</strong><br />
+Las ventas generan movimientos de <strong>salida</strong> y las compras recibidas generan<br />
+movimientos de <strong>entrada</strong>, actualizando el stock en la misma transacción. Existe un<br />
+<strong>historial completo de movimientos</strong> (entradas, salidas y ajustes) y un <strong>ajuste<br />
+manual</strong> por recuento físico.</p>
+<p><img alt="Historial de movimientos de inventario" src="img/Historial_movimientos_inventario.png" /><br />
+<em>Figura 16. Historial de movimientos de inventario.</em></p>
+<p><img alt="Formulario de ajuste de stock" src="img/Formulario_ajuste_stock.png" /><br />
+<em>Figura 17. Formulario de ajuste de stock.</em></p>
+<p><strong>RF5 — Registro de ventas.</strong><br />
+Registro de ventas con varias líneas; cada venta descuenta stock y valida que haya<br />
+existencias suficientes (si no, se revierte la operación completa). El detalle muestra<br />
+el beneficio por línea y total.</p>
+<p><img alt="Formulario de nueva venta" src="img/Formulario_nueva_venta.png" /><br />
+<em>Figura 18. Formulario de nueva venta con varias líneas.</em></p>
+<p><img alt="Detalle de una venta" src="img/Detalles_venta.png" /><br />
+<em>Figura 19. Detalle de una venta con el beneficio calculado.</em></p>
+<p><strong>RF6 — Gestión avanzada de proveedores.</strong><br />
+Alta de proveedores con datos completos (nombre, CIF, contacto, condiciones de pago…).<br />
+Asociación de productos a uno o varios proveedores con su precio, y <strong>comparativa de<br />
+precios</strong> entre proveedores para un mismo producto. Registro de compras (histórico).</p>
+<p><img alt="Ficha de proveedor" src="img/Detalles_proveedor.png" /><br />
+<em>Figura 20. Ficha de un proveedor con los productos que suministra.</em></p>
+<p><img alt="Comparativa de proveedores" src="img/Comparativa_proveedores.png" /><br />
+<em>Figura 21. Comparativa de precios de un producto entre proveedores.</em></p>
+<p><strong>RF7 — Análisis, métricas y visualización.</strong><br />
+Panel de análisis con KPIs (ingresos, coste, beneficio, nº de ventas) filtrables por<br />
+rango de fechas, gráficas de evolución de ventas, productos más vendidos, más rentables<br />
+y de menor rotación, y una tabla con la <strong>estimación de días hasta agotar stock</strong> según<br />
+el ritmo de ventas. Las gráficas se generan en el servidor con Matplotlib.</p>
+<p><img alt="Panel de análisis (KPIs y evolución)" src="img/Analisis_metricas.png" /><br />
+<em>Figura 22. Panel de análisis: KPIs y evolución de ventas.</em></p>
+<p><img alt="Panel de análisis (rankings)" src="img/Analisis_metricas_2.png" /><br />
+<em>Figura 23. Panel de análisis: productos más vendidos, más rentables y de menor rotación.</em></p>
+<p><img alt="Panel de análisis (días hasta agotar stock)" src="img/Analisis_metricas_3.png" /><br />
+<em>Figura 24. Panel de análisis: estimación de días hasta agotar stock.</em></p>
+<h3>5.2. Requisitos no funcionales</h3>
+<ul>
+<li><strong>Usabilidad:</strong> interfaz sencilla, clara e intuitiva (Bootstrap), con navegación por<br />
+  menú y mensajes de confirmación de las acciones.</li>
+<li><strong>Seguridad:</strong> contraseñas con hash, protección CSRF en los formularios y control de<br />
+  acceso por rol.</li>
+<li><strong>Portabilidad y reproducibilidad:</strong> entorno virtual con dependencias fijadas; base de<br />
+  datos en un único fichero; sin dependencias externas de internet (Bootstrap y gráficas<br />
+  en local).</li>
+<li><strong>Mantenibilidad:</strong> arquitectura en capas (rutas → servicios → modelos) y código<br />
+  organizado en <em>blueprints</em> por módulo.</li>
+</ul>
+<hr />
+<h2>6. Manual de instalación</h2>
+<h3>6.1. Requisitos previos</h3>
+<ul>
+<li><strong>Python 3.13</strong> (o 3.11 o superior). Comprobar con <code>python --version</code>.</li>
+</ul>
+<h3>6.2. Instalación desde cero (Windows / PowerShell)</h3>
+<p>Desde la carpeta del proyecto:</p>
+<pre><code class="language-powershell">python -m venv .venv
+.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+flask --app run init-db
+flask --app run seed
+flask --app run run
+</code></pre>
+<p>En Linux/macOS, sustituir la línea de activación por <code>source .venv/bin/activate</code>.</p>
+<p>La aplicación quedará disponible en <strong>http://localhost:5000</strong>.</p>
+<blockquote>
+<p>Si PowerShell bloquea la activación del entorno, ejecutar una vez<br />
+<code>Set-ExecutionPolicy -Scope CurrentUser RemoteSigned</code>, o bien invocar directamente el<br />
+intérprete del entorno: <code>.venv\Scripts\python.exe run.py</code>.</p>
+</blockquote>
+<ul>
+<li><code>init-db</code> crea las tablas de la base de datos (fichero <code>instance/gestor.sqlite</code>).</li>
+<li><code>seed</code> carga datos de ejemplo (usuarios, productos, proveedores, ventas y compras).</li>
+</ul>
+<h3>6.3. Usuarios de ejemplo</h3>
+<p>Tras ejecutar <code>seed</code>, se pueden usar estos usuarios (contraseña común: <strong>Demo1234</strong>):</p>
+<table>
+<thead>
+<tr>
+<th>Email</th>
+<th>Rol</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>admin@gestor.com</td>
+<td>ADMIN</td>
+</tr>
+<tr>
+<td>almacen@gestor.com</td>
+<td>ALMACEN</td>
+</tr>
+<tr>
+<td>finanzas@gestor.com</td>
+<td>FINANCIERO</td>
+</tr>
+</tbody>
+</table>
+<p>Para crear un administrador propio de forma interactiva:<br />
+<code>flask --app run crear-admin</code>.</p>
+<hr />
+<h2>7. Conclusiones</h2>
+<h3>7.1. Conclusiones generales</h3>
+<p>El proyecto cumple los objetivos planteados: se ha construido una aplicación web<br />
+funcional que no solo almacena datos, sino que los transforma en información útil para<br />
+la gestión. La arquitectura en capas y la organización en <em>blueprints</em> han facilitado<br />
+añadir los módulos de forma ordenada, y el diseño del inventario basado en movimientos<br />
+como fuente de verdad garantiza la coherencia del stock.</p>
+<h3>7.2. Aprendizajes y experiencias adquiridas</h3>
+<ul>
+<li>Diseño de una <strong>base de datos relacional</strong> y su implementación con un <strong>ORM</strong><br />
+  (relaciones, transacciones, integridad).</li>
+<li>Uso de <strong>Flask</strong> con el patrón <em>application factory</em>, <em>blueprints</em>, autenticación y<br />
+  control de acceso por rol.</li>
+<li>Aplicación de <strong>lógica de negocio</strong> no trivial: transacciones atómicas, congelación<br />
+  de precios, cálculo de métricas y estimaciones.</li>
+<li>Generación de <strong>gráficas en el servidor</strong> con Matplotlib y su integración en el HTML<br />
+  sin JavaScript, reforzando la comunicación backend↔frontend con Python.</li>
+<li>Buenas prácticas de <strong>reproducibilidad</strong>: entorno virtual, dependencias fijadas y<br />
+  eliminación de dependencias externas de internet.</li>
+</ul>
+<hr />
+<h2>8. Evolutivos del proyecto</h2>
+<p>Posibles mejoras y ampliaciones para futuros desarrollos:</p>
+<ul>
+<li><strong>Generación de informes en PDF</strong> y <strong>exportación de datos</strong> (CSV/Excel).</li>
+<li><strong>Sistema de alertas automáticas</strong> por bajo stock o riesgo de rotura.</li>
+<li><strong>Predicción básica de ventas</strong> y <strong>simulación de pedidos óptimos</strong> según la demanda<br />
+  histórica.</li>
+<li><strong>Gestión de usuarios desde la interfaz</strong> (además del comando de consola actual).</li>
+<li><strong>Paginación y búsqueda avanzada</strong> en los listados con muchos registros.</li>
+<li><strong>Anulación de ventas</strong> con movimientos de inventario compensatorios.</li>
+<li><strong>Pruebas automatizadas</strong> integradas (por ejemplo, con <code>pytest</code>) y despliegue.</li>
+</ul>
+</body>
+</html>
