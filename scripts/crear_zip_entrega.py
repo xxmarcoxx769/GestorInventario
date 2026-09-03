@@ -19,7 +19,7 @@ SALIDA = RAIZ.parent / "GestorInventario_entrega.zip"
 
 # Carpetas que se excluyen por completo (en cualquier nivel)
 DIRS_EXCLUIDOS = {".venv", "venv", "env", "__pycache__", ".git", ".claude", "instance",
-                  ".pytest_cache", ".idea", ".vscode"}
+                  ".pytest_cache", ".idea", ".vscode", "scripts"}
 # Ficheros que se excluyen
 FICHEROS_EXCLUIDOS = {".env", "GestorInventario_entrega.zip"}
 # Extensiones excluidas
