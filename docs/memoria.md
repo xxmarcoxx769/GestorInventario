@@ -2,14 +2,9 @@
 
 **Proyecto Final de Python — Propuesta A**
 
-**Nombre y apellidos:** _[completar: tu nombre y apellidos]_
+**Nombre y apellidos:** Marco Jiménez Lorente
 **Fecha:** _[completar]_
 
-> Este documento es el borrador de la memoria del proyecto. Está redactado en
-> Markdown para poder mantenerlo junto al código; para la entrega debe exportarse
-> a PDF o Word y **añadir las capturas de pantalla** en los puntos indicados con
-> `📷 Captura:`. Revisa la ortografía y el formato antes de entregar (son criterios
-> de corrección).
 
 ---
 
@@ -145,8 +140,7 @@ documento [modelo-datos.md](modelo-datos.md). A continuación se resume el dise�
 
 - **`usuarios`**: credenciales y rol (ADMIN, ALMACEN, FINANCIERO).
 - **`categorias`** y **`productos`**: catálogo. Cada producto guarda referencia,
-  precio de venta, coste de adquisición, stock y stock mínimo. El **margen de
-  beneficio se calcula** (precio − coste), no se almacena editable.
+  precio de venta, coste de adquisición, stock y stock mínimo. El **margen de beneficio se calcula** (precio − coste), no se almacena editable.
 - **`proveedores`** y **`producto_proveedor`**: proveedores y la relación N:M que
   indica qué proveedor suministra qué producto y a qué precio.
 - **`ventas`** y **`lineas_venta`**: cada línea **congela** el precio y el coste en el
@@ -161,16 +155,47 @@ Consideraciones específicas de SQLite tenidas en cuenta: activación de claves 
 (`PRAGMA foreign_keys = ON`), uso de `Numeric` para importes y fechas en formato
 ISO-8601.
 
-> 📷 Captura: esquema/diagrama de la base de datos (puede exportarse desde el diagrama
-> del documento del modelo de datos o desde una herramienta como DBeaver).
+### 4.1. Tablas de la base de datos (con datos de ejemplo)
+
+A continuación se muestran las 10 tablas de la base de datos con datos de ejemplo,
+visualizadas desde DBeaver.
+
+![Tabla usuarios](img/usuarios_page-0001.jpg)
+*Figura 1. Tabla `usuarios`.*
+
+![Tabla categorias](img/categorias_page-0001.jpg)
+*Figura 2. Tabla `categorias`.*
+
+![Tabla productos](img/productos_page-0001.jpg)
+*Figura 3. Tabla `productos`.*
+
+![Tabla proveedores](img/proveedores_page-0001.jpg)
+*Figura 4. Tabla `proveedores`.*
+
+![Tabla producto_proveedor](img/producto_proveedor_page-0001.jpg)
+*Figura 5. Tabla `producto_proveedor` (relación N:M productos–proveedores).*
+
+![Tabla ventas](img/ventas_page-0001.jpg)
+*Figura 6. Tabla `ventas`.*
+
+![Tabla lineas_venta](img/lineas_venta_page-0001.jpg)
+*Figura 7. Tabla `lineas_venta`.*
+
+![Tabla compras](img/compras_page-0001.jpg)
+*Figura 8. Tabla `compras`.*
+
+![Tabla lineas_compra](img/lineas_compra_page-0001.jpg)
+*Figura 9. Tabla `lineas_compra`.*
+
+![Tabla movimientos_inventario](img/movimientos_inventario_page-0001.jpg)
+*Figura 10. Tabla `movimientos_inventario` (fuente de verdad del stock).*
 
 ---
 
 ## 5. Explicación de los requisitos de la aplicación
 
-> **IMPORTANTE:** cada requisito funcional debe acompañarse de **capturas de pantalla**
-> que demuestren su funcionamiento. A continuación se listan los requisitos y se indica
-> con `📷 Captura:` dónde debe insertarse cada imagen.
+Cada requisito funcional se acompaña de capturas de pantalla que demuestran su
+funcionamiento.
 
 ### 5.1. Requisitos funcionales
 
@@ -178,49 +203,80 @@ ISO-8601.
 La aplicación incluye autenticación mediante email y contraseña (contraseñas
 almacenadas con hash). Existen tres roles con permisos diferenciados. Cada vista está
 protegida según el rol mediante un decorador `rol_requerido`.
-> 📷 Captura: pantalla de inicio de sesión.
-> 📷 Captura: mensaje de acceso denegado (error 403) al intentar una acción sin permiso.
+
+![Pantalla de inicio de sesión](img/Pantalla_inicio_sesion.png)
+*Figura 11. Pantalla de inicio de sesión.*
+
+![Acceso denegado (error 403)](img/Error403.png)
+*Figura 12. Mensaje de acceso denegado (error 403) al intentar una acción sin permiso.*
 
 **RF2 — Base de datos relacional.**
-La información se almacena en 10 tablas relacionadas correctamente diseñadas
-(ver apartado 4).
-> 📷 Captura: tablas de la base de datos vistas desde DBeaver.
+La información se almacena en 10 tablas relacionadas correctamente diseñadas. El esquema,
+el diagrama entidad-relación y las tablas con datos de ejemplo se detallan en el
+**apartado 4** (Figuras 1–10).
 
 **RF3 — Gestión de productos y categorías.**
 Alta, edición y baja de productos y categorías. La referencia de producto y el nombre
 de categoría son únicos. El margen se muestra calculado. La baja está protegida: no se
 puede eliminar un producto con movimientos, ventas o compras asociados.
-> 📷 Captura: listado de productos con su margen y stock.
-> 📷 Captura: formulario de alta/edición de producto.
+
+![Listado de productos](img/Listado_productos.png)
+*Figura 13. Listado de productos con su margen y stock.*
+
+![Formulario de alta de producto](img/Formulario_alta_producto.png)
+*Figura 14. Formulario de alta de producto.*
+
+![Formulario de edición de producto](img/Formulario_editar_producto.png)
+*Figura 15. Formulario de edición de producto.*
 
 **RF4 — Gestión de inventario y actualización automática de stock.**
 Las ventas generan movimientos de **salida** y las compras recibidas generan
 movimientos de **entrada**, actualizando el stock en la misma transacción. Existe un
 **historial completo de movimientos** (entradas, salidas y ajustes) y un **ajuste
 manual** por recuento físico.
-> 📷 Captura: historial de movimientos de inventario.
-> 📷 Captura: formulario de ajuste de stock.
+
+![Historial de movimientos de inventario](img/Historial_movimientos_inventario.png)
+*Figura 16. Historial de movimientos de inventario.*
+
+![Formulario de ajuste de stock](img/Formulario_ajuste_stock.png)
+*Figura 17. Formulario de ajuste de stock.*
 
 **RF5 — Registro de ventas.**
 Registro de ventas con varias líneas; cada venta descuenta stock y valida que haya
 existencias suficientes (si no, se revierte la operación completa). El detalle muestra
 el beneficio por línea y total.
-> 📷 Captura: formulario de nueva venta con varias líneas.
-> 📷 Captura: detalle de una venta con el beneficio calculado.
+
+![Formulario de nueva venta](img/Formulario_nueva_venta.png)
+*Figura 18. Formulario de nueva venta con varias líneas.*
+
+![Detalle de una venta](img/Detalles_venta.png)
+*Figura 19. Detalle de una venta con el beneficio calculado.*
 
 **RF6 — Gestión avanzada de proveedores.**
 Alta de proveedores con datos completos (nombre, CIF, contacto, condiciones de pago…).
 Asociación de productos a uno o varios proveedores con su precio, y **comparativa de
 precios** entre proveedores para un mismo producto. Registro de compras (histórico).
-> 📷 Captura: ficha de un proveedor con los productos que suministra.
-> 📷 Captura: comparativa de precios de un producto entre proveedores.
+
+![Ficha de proveedor](img/Detalles_proveedor.png)
+*Figura 20. Ficha de un proveedor con los productos que suministra.*
+
+![Comparativa de proveedores](img/Comparativa_proveedores.png)
+*Figura 21. Comparativa de precios de un producto entre proveedores.*
 
 **RF7 — Análisis, métricas y visualización.**
 Panel de análisis con KPIs (ingresos, coste, beneficio, nº de ventas) filtrables por
 rango de fechas, gráficas de evolución de ventas, productos más vendidos, más rentables
 y de menor rotación, y una tabla con la **estimación de días hasta agotar stock** según
 el ritmo de ventas. Las gráficas se generan en el servidor con Matplotlib.
-> 📷 Captura: panel de análisis con las gráficas y los KPIs.
+
+![Panel de análisis (KPIs y evolución)](img/Analisis_metricas.png)
+*Figura 22. Panel de análisis: KPIs y evolución de ventas.*
+
+![Panel de análisis (rankings)](img/Analisis_metricas_2.png)
+*Figura 23. Panel de análisis: productos más vendidos, más rentables y de menor rotación.*
+
+![Panel de análisis (días hasta agotar stock)](img/Analisis_metricas_3.png)
+*Figura 24. Panel de análisis: estimación de días hasta agotar stock.*
 
 ### 5.2. Requisitos no funcionales
 
